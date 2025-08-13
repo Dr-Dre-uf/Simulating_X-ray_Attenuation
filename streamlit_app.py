@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
 
 def generate_xray_simulation():
     """Generates a simulated X-ray attenuation image."""
@@ -20,13 +19,11 @@ def generate_xray_simulation():
 def main():
     st.title("Simulating X-ray Attenuation")
 
-    # Generate and display the image
+    # Generate the image
     image = generate_xray_simulation()
-    fig, ax = plt.subplots()
-    ax.imshow(image, cmap='gray')
-    ax.set_title("Simulated X-ray Attenuation")
-    ax.axis('off')
-    st.pyplot(fig)
+
+    # Display the image using Streamlit's st.image
+    st.image(image, caption="Simulated X-ray Attenuation", use_column_width=True)
 
     # Explanation and questions
     st.subheader("Understanding X-ray Attenuation")
