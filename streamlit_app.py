@@ -1,50 +1,56 @@
 import streamlit as st
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
-def generate_xray_simulation():
-    """Generates a simulated X-ray attenuation image."""
+def generate_animation():
+    """Generates the animated simulated X-ray attenuation image."""
 
-    image = np.ones((100, 300), dtype=np.uint8) * 100  # gray background
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
 
-    # two circular, dark spots (representing low attenuation)
-    cv2.circle(image, (75, 50), 30, 30, -1)
-    cv2.circle(image, (225, 50), 30, 30, -1)
+    def update(frame):
+        image = np.ones((100, 300), dtype=np.uint8) * 100  # gray background
 
-    # white rectangle in center of image (representing high attenuation)
-    cv2.rectangle(image, (140, 20), (160, 80), 200, -1)
+        # Simulate different tissue densities (0-255)
+        bone_intensity = 255  # High attenuation (bright)
+        muscle_intensity = 150  # Moderate attenuation (gray)
+        air_intensity = 50   # Low attenuation (dark)
 
-    return image
+        # Draw shapes with different intensities
+        cv2.circle(image, (75, 50), 30, bone_intensity, -1) #Bone
+        cv2.circle(image, (225, 50), 30, muscle_intensity, -1) #Muscle
+        cv2.rectangle(image, (140, 20), (160, 80), air_intensity, -1) #Air
+
+        ax.imshow(image, cmap='gray')
+        ax.set_title(f"Simulated X-ray Attenuation")
+        return ax,
+
+    ani = animation.FuncAnimation(fig, update, frames=10, blit=True, repeat=False)
+    return ani
 
 def main():
     st.title("Simulating X-ray Attenuation")
 
-    # Generate the image
-    image = generate_xray_simulation()
+    st.markdown("""
+    **X-ray Attenuation Simulation**
 
-    # Display the image using Streamlit's st.image
-    st.image(image, caption="Simulated X-ray Attenuation", use_column_width=True)
+    Different tissues absorb X-rays at different rates, which is the principle behind X-ray imaging. This simulation visualizes how varying tissue densities affect X-ray absorption.
 
-    # Explanation and questions
-    st.subheader("Understanding X-ray Attenuation")
-    st.write("""
-X-rays pass through the body and are absorbed (or attenuated) by different tissues depending on their density and atomic number. The amount of attenuation determines how bright or dark a region appears on the X-ray image.
+    *   **High attenuation materials (e.g., bone)** absorb more X-rays and appear **brighter** on an X-ray image.
+    *   **Low attenuation materials (e.g., air)** allow more X-rays to pass through and appear **darker**.
+    *   **Intermediate tissues (e.g., muscle)** absorb X-rays to a moderate degree and appear in shades of **gray**.
 
-High attenuation materials (e.g., bone with high calcium content) absorb more X-rays and allow fewer to reach the detector. They appear brighter (white) on the X-ray image.
+    **Biological Interpretation:**
 
-Low attenuation materials (e.g., air in lungs) allow most X-rays to pass through - they appear darker (black) on the X-ray image.
+    *   Bones appear bright white due to their high calcium content and density.
+    *   Lungs, being mostly air-filled, appear dark, aiding in the detection of infiltrates.
+    *   Soft tissues like organs appear in varying shades of gray based on their composition.
+    """)
 
-Intermediate tissues like muscle, fat, or organs absorb X-rays to a moderate degree. They appear in shades of gray.
-
-**Biological Interpretation:**
-
-*   Bones show up as bright white because they’re dense and highly attenuate X-rays.
-*   Lungs are mostly air-filled, appearing dark, which helps radiologists detect infiltrates or fluid buildup.
-*   Soft tissues such as liver, heart, or muscles appear in various gray levels based on their composition and density.
-""")
-
-    st.subheader("Think About It:")
-    st.write("How does tissue contrast relate to X-ray attenuation? What kinds of materials appear brighter in an X-ray image? Darker? How might that relate to biology and anatomical structures?")
+    ani = generate_animation()
+    st.pyplot(ani)
 
 if __name__ == "__main__":
     main()
