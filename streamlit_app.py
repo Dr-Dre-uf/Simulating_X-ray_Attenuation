@@ -13,44 +13,55 @@ def generate_animation():
     def update(frame):
         image = np.ones((100, 300), dtype=np.uint8) * 100  # gray background
 
-        # Simulate different tissue densities (0-255)
-        bone_intensity = 255  # High attenuation (bright)
-        muscle_intensity = 150  # Moderate attenuation (gray)
-        air_intensity = 50   # Low attenuation (dark)
-
-        # Draw shapes with different intensities
-        cv2.circle(image, (75, 50), 30, bone_intensity, -1) #Bone
-        cv2.circle(image, (225, 50), 30, muscle_intensity, -1) #Muscle
-        cv2.rectangle(image, (140, 20), (160, 80), air_intensity, -1) #Air
+        # Simulate different tissue types with varying attenuation
+        # Dark circle: Low attenuation (like air or fat)
+        cv2.circle(image, (75 + frame * 5, 50), 30, 30, -1)
+        # Bright rectangle: High attenuation (like bone)
+        cv2.rectangle(image, (140 - frame * 2, 20), (160 + frame * 2, 80), 200, -1)
+        # Gray circle: Intermediate attenuation (like muscle)
+        cv2.circle(image, (225 - frame * 5, 50), 30, 100, -1)  # Intermediate gray value
 
         ax.imshow(image, cmap='gray')
-        ax.set_title(f"Simulated X-ray Attenuation")
+        ax.set_title(f"Simulated X-ray Attenuation (Frame {frame + 1})")
         return ax,
 
-    ani = animation.FuncAnimation(fig, update, frames=10, blit=True, repeat=False)
-    return ani
+    ani = animation.FuncAnimation(fig, update, frames=20, blit=True, repeat=False)
+    return fig
 
 def main():
     st.title("Simulating X-ray Attenuation")
 
-    st.markdown("""
-    **X-ray Attenuation Simulation**
+    st.write("""
+    This app simulates how different tissues absorb X-rays.  X-rays pass through the body and are attenuated (absorbed) to varying degrees depending on the tissue's density and composition.  
 
-    Different tissues absorb X-rays at different rates, which is the principle behind X-ray imaging. This simulation visualizes how varying tissue densities affect X-ray absorption.
+    **Key Concepts:**
 
-    *   **High attenuation materials (e.g., bone)** absorb more X-rays and appear **brighter** on an X-ray image.
-    *   **Low attenuation materials (e.g., air)** allow more X-rays to pass through and appear **darker**.
-    *   **Intermediate tissues (e.g., muscle)** absorb X-rays to a moderate degree and appear in shades of **gray**.
-
-    **Biological Interpretation:**
-
-    *   Bones appear bright white due to their high calcium content and density.
-    *   Lungs, being mostly air-filled, appear dark, aiding in the detection of infiltrates.
-    *   Soft tissues like organs appear in varying shades of gray based on their composition.
+    *   **Attenuation:** The reduction in X-ray intensity as it passes through a material.
+    *   **Tissue Contrast:** The difference in X-ray attenuation between different tissues.
+    *   **Brighter Regions:**  Materials that absorb more X-rays (high attenuation) appear brighter on an X-ray image. (e.g., Bone)
+    *   **Darker Regions:** Materials that allow more X-rays to pass through (low attenuation) appear darker. (e.g., Air in lungs)
     """)
 
-    ani = generate_animation()
-    st.pyplot(ani)
+    st.subheader("Simulation")
+    fig = generate_animation()
+    st.pyplot(fig)
+
+    st.subheader("Interpretation")
+    st.write("""
+    In the simulation:
+
+    *   The **dark circle** represents a tissue with *low* attenuation (like air or fat).
+    *   The **bright rectangle** represents a tissue with *high* attenuation (like bone).
+    *   The **gray circle** represents a tissue with *intermediate* attenuation (like muscle).
+    
+    Observe how these different attenuation levels create contrast in the image.
+    
+    **Biological Relevance:**
+
+    *   Bones appear bright white due to their high calcium content and density.
+    *   Lungs appear dark because they are filled with air.
+    *   Soft tissues such as muscles, organs, and fat appear in shades of gray. 
+    """)
 
 if __name__ == "__main__":
     main()
