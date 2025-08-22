@@ -26,11 +26,26 @@ def generate_and_display_image():
     image[rect_top_left[1]:rect_bottom_right[1], rect_top_left[0]:rect_bottom_right[0]] = 200
 
     # Display using Matplotlib
-    st.pyplot(plt.imshow(image, cmap='gray'))
-    plt.title("Simulated X-ray Attenuation")
-    plt.axis('off')
-    plt.show()
+    fig, ax = plt.subplots()
+    ax.imshow(image, cmap='gray')
+    ax.set_title("Simulated X-ray Attenuation")
+    ax.axis('off')
+
+    # Convert Matplotlib figure to NumPy array
+    fig.canvas.draw()
+    image_np = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+    image_np = image_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    #image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR) #we dont need cv2
+
+    st.image(image_np, caption="Simulated X-ray Attenuation", use_container_width=True)
+    plt.close(fig)  # Close the figure to prevent memory leaks
+
+def main():
+    st.title("Simulated X-ray Attenuation Image")
+    st.write("""
+This app generates a simple simulation of X-ray attenuation to demonstrate how different tissues appear on an X-ray image.
+    """)
+    generate_and_display_image()
 
 if __name__ == "__main__":
-    st.title("Simulated X-ray Attenuation Image")
-    generate_and_display_image()
+    main()
