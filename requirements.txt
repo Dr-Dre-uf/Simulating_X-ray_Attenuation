@@ -1,3 +1,10 @@
 streamlit
-numpy
 matplotlib
+numpy  # Matplotlib depends on NumPy
+cycler
+fonttools
+kiwisolver
+pillow
+pyparsing
+python-dateutil
+six
