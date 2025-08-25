@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-<<<<<<< HEAD
 
 def generate_and_display_image():
     """Generates and displays the simulated X-ray attenuation image."""
@@ -11,7 +10,7 @@ def generate_and_display_image():
     center1 = (75, 50)
     radius1 = 30
     center2 = (225, 50)
-    radius2 = 40  # Increased radius for the second circle
+    radius2 = 35  # Increased radius for the second circle
     inner_radius = 15 #Radius of inner light circle
 
     # Create a mask for the first circle
@@ -46,20 +45,3 @@ This app generates a simple simulation of X-ray attenuation to demonstrate how d
 
 if __name__ == "__main__":
     main()
-=======
-import cv2
-import matplotlib.pyplot as plt
-
-# Create the image
-image = np.ones((100, 300), dtype=np.uint8) * 100  # gray background
-
-# Add circular spots
-cv2.circle(image, (75, 50), 30, 0, -1)  # dark spot
-cv2.circle(image, (225, 50), 30, 0, -1)  # dark spot
-
-# Add white rectangle
-cv2.rectangle(image, (140, 20), (160, 80), 200, -1)
-
-# Display the image in Streamlit
-st.image(image, caption="Simulated X-ray Attenuation", channels="GRAY")
->>>>>>> 051f0f0d3b7cd4c5e687f32ff7f157af54c1dfc8
