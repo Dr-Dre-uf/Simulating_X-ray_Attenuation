@@ -10,7 +10,7 @@ def generate_and_display_image():
     center1 = (75, 50)
     radius1 = 30
     center2 = (225, 50)
-    radius2 = 40  # Increased radius for the second circle
+    radius2 = 35  # Increased radius for the second circle
     inner_radius = 15 #Radius of inner light circle
 
     # Create a mask for the first circle
