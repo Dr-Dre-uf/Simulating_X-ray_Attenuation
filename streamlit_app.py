@@ -1,123 +1,108 @@
 import streamlit as st
 import numpy as np
+import cv2
+import matplotlib.pyplot as plt
 
 # =====================================================================
-# SCRIPT 1 — Simulated X-ray Attenuation Image
+# PAGE CONFIGURATION
 # =====================================================================
+st.set_page_config(page_title="Biomedical Imaging Demo", layout="wide")
 
-def app_xray_simulation():
-    st.title("Simulated X-ray Attenuation Image")
+st.title("Landscape of Biomedical Imaging")
+
+# Added explicit instructions for the students
+st.info("**Instructions:** Use the controls in the sidebar to adjust the simulated tissue densities. Observe how these changes affect the X-ray image below, and then generate a histogram to mathematically analyze the resulting pixel intensities.")
+
+# =====================================================================
+# INTERACTIVE CONTROLS (SIDEBAR)
+# =====================================================================
+st.sidebar.header("Tissue Density Controls")
+st.sidebar.write("Adjust the simulated density (0 = Black/Air, 255 = White/Bone)")
+
+# Added tooltips using the `help` parameter
+air_intensity = st.sidebar.slider(
+    "Lungs (Air)", 0, 100, 30,
+    help="Simulates the radiodensity of air-filled spaces. Lower values absorb fewer X-rays and appear darker."
+)
+tissue_intensity = st.sidebar.slider(
+    "Soft Tissue", 50, 150, 100,
+    help="Simulates the radiodensity of soft tissues like muscle or organs. Intermediate values appear as shades of gray."
+)
+bone_intensity = st.sidebar.slider(
+    "Bone", 150, 255, 200,
+    help="Simulates the radiodensity of dense materials. Higher values absorb more X-rays and appear brighter."
+)
+
+
+# =====================================================================
+# SECTION 1: SIMULATED X-RAY
+# =====================================================================
+st.header("1. Simulated X-ray Attenuation")
+
+# Generate the image using the dynamic slider values
+image = np.ones((100, 300), dtype=np.uint8) * tissue_intensity
+
+# Two circular, dark spots (Lungs/Air)
+cv2.circle(image, (75, 50), 30, air_intensity, -1)  
+cv2.circle(image, (225, 50), 30, air_intensity, -1)
+
+# White rectangle in center (Bone)
+cv2.rectangle(image, (140, 20), (160, 80), bone_intensity, -1)
+
+# Save the generated image to Streamlit's session state
+st.session_state['xray_image'] = image
+
+# Display the image
+st.image(image, caption="Simulated X-ray Attenuation", use_container_width=True, clamp=True)
+
+# The "Reveal" without emojis
+with st.expander("Reveal: Biological Interpretation"):
     st.write("""
-    This app generates a simple simulation of X-ray attenuation to demonstrate how 
-    different tissues appear on an X-ray image.
-    """)
-    generate_and_display_image()
-
-
-def generate_and_display_image():
-    """Generates and displays the simulated X-ray attenuation image."""
+    X-rays pass through the body and are absorbed (or attenuated) by different tissues depending on their density and atomic number. The amount of attenuation determines how bright or dark a region appears on the X-ray image.
     
-    # Create a grayscale image with a gray background
-    image = np.ones((100, 300), dtype=np.uint8) * 100
-
-    # Two circular, dark spots
-    center1 = (75, 50)
-    radius1 = 30
-    center2 = (225, 50)
-    radius2 = 35
-    inner_radius = 15
-
-    # First dark circle
-    y, x = np.ogrid[-center1[1]:100 - center1[1], -center1[0]:300 - center1[0]]
-    mask1 = x*x + y*y <= radius1 * radius1
-    image[mask1] = 30
-
-    # Second dark circle
-    y, x = np.ogrid[-center2[1]:100 - center2[1], -center2[0]:300 - center2[0]]
-    mask2 = x*x + y*y <= radius2 * radius2
-    image[mask2] = 30
-
-    # Inner bright circle inside circle 2
-    mask_inner = x*x + y*y <= inner_radius * inner_radius
-    image[mask_inner] = 100
-
-    # White rectangle
-    rect_top_left = (140, 20)
-    rect_bottom_right = (160, 80)
-    image[rect_top_left[1]:rect_bottom_right[1], rect_top_left[0]:rect_bottom_right[0]] = 200
-
-    # Display image
-    st.image(image, caption="Simulated X-ray Attenuation", channels="GRAY", use_container_width=True)
-
-
+    * **High attenuation materials (e.g., Bone):** Absorb more X-rays and allow fewer to reach the detector. They appear brighter (white) on the image.
+    * **Low attenuation materials (e.g., Air in lungs):** Allow most X-rays to pass through. They appear darker (black) on the image.
+    * **Intermediate tissues (e.g., Muscle, fat, organs):** Absorb X-rays to a moderate degree. They appear in shades of gray.
+    """)
+    
 
 
 # =====================================================================
-# SCRIPT 2 — Pixel Intensity Histogram App
+# SECTION 2: INTENSITY HISTOGRAM
 # =====================================================================
+st.divider()
+st.header("2. Pixel Intensity Histogram")
+st.write("Understanding the histogram of an image is critical for interpreting brightness and contrast.")
 
-def app_intensity_histogram():
-    st.title("Pixel Intensity Histogram App")
+# Interactive button with a tooltip
+if st.button("Generate Histogram from Image above", help="Click to calculate and plot the frequency of pixel intensities from the current simulated X-ray."):
+    
+    # Calculate real histogram using cv2
+    hist = cv2.calcHist([st.session_state['xray_image']], [0], None, [256], [0, 256])
+    
+    # Plot using Matplotlib
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(hist, color='blue')
+    ax.set_title("Pixel Intensity Histogram")
+    ax.set_xlabel("Pixel Intensity (0-255)")
+    ax.set_ylabel("Frequency (Number of Pixels)")
+    ax.grid(True)
+    ax.set_xlim([0, 256])
+    
+    # Display the plot in Streamlit
+    st.pyplot(fig)
+    
 
-    # Create a synthetic image
-    width, height = 200, 200
-    image = create_synthetic_image(width, height)
+[Image of an image intensity histogram]
 
-    # Calculate histogram
-    histogram_data = calculate_histogram(image)
-
-    # Prepare vertical peak lines (for visualization)
-    air_line = [0] * 30 + [9000] * 5 + [0] * (256 - 35)
-    soft_tissue_line = [0] * 100 + [1000] * 5 + [0] * (256 - 105)
-    bone_line = [0] * 200 + [21000] * 5 + [0] * (256 - 205)
-
-    # Display the histogram with indicators
-    st.write("### Synthetic Pixel Intensity Peaks")
-    st.line_chart({
-        "Air": air_line,
-        "Soft Tissue": soft_tissue_line,
-        "Bone": bone_line,
-    })
-
-
-def create_synthetic_image(width, height):
-    """Creates a synthetic image with three intensity levels."""
-    image = np.zeros((height, width), dtype=np.uint8)
-
-    # Simulate air (30)
-    image[image < 50] = 30
-    # Soft tissue (100)
-    image[(image >= 50) & (image < 150)] = 100
-    # Bone (200)
-    image[image >= 150] = 200
-
-    return image
-
-
-def calculate_histogram(image):
-    """Calculates histogram using NumPy."""
-    pixels = image.flatten()
-    hist, bins = np.histogram(pixels, bins=256, range=[0, 256])
-    return hist
-
-
-
-# =====================================================================
-# MAIN APP WITH SIDEBAR
-# =====================================================================
-
-def main():
-    st.sidebar.title("Navigation")
-    selection = st.sidebar.radio(
-        "Choose an app:",
-        ["Simulated X-ray Image", "Pixel Intensity Histogram"]
-    )
-
-    if selection == "Simulated X-ray Image":
-        app_xray_simulation()
-    elif selection == "Pixel Intensity Histogram":
-        app_intensity_histogram()
-
-
-if __name__ == "__main__":
-    main()
+    
+    # The "Reveal" without emojis
+    with st.expander("Reveal: Histogram Analysis"):
+        st.write(f"""
+        The three distinct peaks in this histogram correspond directly to the materials in our simulated image. Because you can adjust the sliders, these peaks will move!
+        
+        Currently, the peaks represent:
+        * **Intensity {air_intensity}:** Air (Lungs)
+        * **Intensity {tissue_intensity}:** Soft Tissue (Background)
+        * **Intensity {bone_intensity}:** Bone (Center structure)
+        """)
