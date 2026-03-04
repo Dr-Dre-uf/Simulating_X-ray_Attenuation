@@ -10,7 +10,7 @@ st.set_page_config(page_title="Biomedical Imaging Demo", layout="wide")
 
 st.title("Landscape of Biomedical Imaging")
 
-# Added explicit instructions for the students
+# Explicit instructions for the students
 st.info("**Instructions:** Use the controls in the sidebar to adjust the simulated tissue densities. Observe how these changes affect the X-ray image below, and then generate a histogram to mathematically analyze the resulting pixel intensities.")
 
 # =====================================================================
@@ -19,7 +19,7 @@ st.info("**Instructions:** Use the controls in the sidebar to adjust the simulat
 st.sidebar.header("Tissue Density Controls")
 st.sidebar.write("Adjust the simulated density (0 = Black/Air, 255 = White/Bone)")
 
-# Added tooltips using the `help` parameter
+# Tooltips using the `help` parameter
 air_intensity = st.sidebar.slider(
     "Lungs (Air)", 0, 100, 30,
     help="Simulates the radiodensity of air-filled spaces. Lower values absorb fewer X-rays and appear darker."
@@ -55,7 +55,7 @@ st.session_state['xray_image'] = image
 # Display the image
 st.image(image, caption="Simulated X-ray Attenuation", use_container_width=True, clamp=True)
 
-# The "Reveal" without emojis
+# The "Reveal" 
 with st.expander("Reveal: Biological Interpretation"):
     st.write("""
     X-rays pass through the body and are absorbed (or attenuated) by different tissues depending on their density and atomic number. The amount of attenuation determines how bright or dark a region appears on the X-ray image.
@@ -64,7 +64,7 @@ with st.expander("Reveal: Biological Interpretation"):
     * **Low attenuation materials (e.g., Air in lungs):** Allow most X-rays to pass through. They appear darker (black) on the image.
     * **Intermediate tissues (e.g., Muscle, fat, organs):** Absorb X-rays to a moderate degree. They appear in shades of gray.
     """)
-    
+    # Note: To add a real image here later, use: st.image("your_image.png")
 
 
 # =====================================================================
@@ -92,11 +92,7 @@ if st.button("Generate Histogram from Image above", help="Click to calculate and
     # Display the plot in Streamlit
     st.pyplot(fig)
     
-
-[Image of an image intensity histogram]
-
-    
-    # The "Reveal" without emojis
+    # The "Reveal" 
     with st.expander("Reveal: Histogram Analysis"):
         st.write(f"""
         The three distinct peaks in this histogram correspond directly to the materials in our simulated image. Because you can adjust the sliders, these peaks will move!
